@@ -5,8 +5,5 @@
 __pycache__/
 *.pyc
 
-.env
-.env.*
-
-.env
-.env.*
+readings/
+FRL-CanAIReplaceAnalyst.pdf
