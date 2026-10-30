@@ -2,6 +2,8 @@
 
 Date: 2026-10-29
 
+Professor's revised Checkpoint 1 deadline: November 3, 2026, 11:59 p.m. Eastern.
+
 ## Completed work
 
 - Updated Step 6 to label each release column as Quarterly, Annual, or Interim.
@@ -38,12 +40,16 @@ Date: 2026-10-29
 
 ## Unresolved issues
 
-- Human verification against the source filings is still pending.
-- Partner checks are still pending.
+- Student audit against the source filings is still pending.
+- Partner selection is still pending.
+- Two partner checks are still pending.
+- Outstanding Costco practice-report and audit work remains.
 - No human audit marks have been assigned.
 
 ## Next steps
 
-- Complete human verification against the saved 10-K, 10-Q, 8-K, and Exhibit 99.1 files.
-- Complete partner checks.
+- Complete the student audit against the saved 10-K, 10-Q, 8-K, and Exhibit 99.1 files.
+- Select a partner and complete two partner checks.
+- Complete the outstanding Costco practice-report and audit work.
+- Complete final commit, push, and submission by November 3, 2026, 11:59 p.m. Eastern.
 - Record any approved corrections after those checks.
