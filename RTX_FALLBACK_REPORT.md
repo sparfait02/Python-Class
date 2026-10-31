@@ -4,7 +4,7 @@ Run time: 2026-10-29, prepared after 22:30 Eastern; exact completion timestamp n
 
 # RTX - Manual ChatGPT Fallback Research Report
 
-Status: AI-generated draft for human review. Human audit and partner checks are pending. Partner selection of RTX has not been documented here. This report was compiled as a manual fallback; it is not evidence of four successful separate SDK model calls.
+Status: AI-generated draft for human review. The partner confirmed RTX as the selected company. The three separately tracked RTX XBRL-tag checks and the LMT/NOC revenue and operating-income XBRL-tag checks are complete. Student checks of LMT and NOC sales, operating income, operating margins, and NOC's disposal gain are complete. The partner's two source checks remain pending. This report was compiled as a manual fallback; it is not evidence of four successful separate SDK model calls.
 
 ## 1. Overview
 
@@ -92,7 +92,7 @@ Saved statement evidence: LMT 10-K `0001628280-26-004195`, lines **853-870**, re
 
 NOC limitation: the same NOC statement reports a **$231 million gain on sale of business** at lines 1088-1090. The NOC margin above remains the reported GAAP margin: $4,511 million divided by $41,954 million. This report does not substitute an adjusted operating-income figure and does not remove the gain from the GAAP calculation. The gain may affect comparability with recurring operating performance and should be reviewed by the student.
 
-ChatGPT independently compared the peer figures in this report with the uploaded saved LMT and NOC 10-K text files. This is not completed human verification, partner verification, or a human audit mark. Peer tags, units, periods, and the NOC gain treatment remain subject to the pending student and partner checks.
+ChatGPT independently compared the LMT and NOC sales, operating income, operating margins, NOC disposal gain, and the revenue and operating-income XBRL records with the uploaded saved 10-K text files and matching SEC records. The student checks for those values and tags are complete. This is not partner verification.
 
 Sources: LMT current 10-K accession `0001628280-26-004195`, [SEC index](https://www.sec.gov/Archives/edgar/data/936468/000162828026004195/0001628280-26-004195-index.htm); NOC current 10-K accession `0001133421-26-000003`, [SEC index](https://www.sec.gov/Archives/edgar/data/1133421/000113342126000003/0001133421-26-000003-index.htm). Peer tags, units, and periods are packet-derived and remain subject to independent verification.
 
@@ -112,17 +112,18 @@ Investment Advisor: **HOLD, explicitly provisional.** The evidence supports a co
 
 **Uncertainty:** The packet has no fair-value benchmark, required return, price target, or comparable peer valuation. The 39.23x measure is an annual GAAP-EPS ratio, not forward or trailing-four-quarter P/E. A different recommendation would require a stated valuation method, investor-specific required return, or reliable comparable valuation evidence.
 
-Strategy Manager review: The five required sections are present. This is a manual fallback report. It does not claim human verification, partner selection, partner marks, or completed model calls.
+Strategy Manager review: The five required sections are present. The partner confirmed RTX as the selected company. Student audit checks have been recorded in RTX_AUDIT.md. The partner's two source checks and separate XBRL-tag checks remain pending. The provisional HOLD recommendation and its valuation limitations are preserved. This is a manual fallback report and does not claim completed partner checks or completed model calls.
 
 ### Remaining requirements
 
-- Human verification against the SEC filings is pending.
-- Partner selection and partner checks are pending and are not assigned here.
-- No human audit marks or partner-check marks are assigned.
+- Remaining student audit items are pending where not recorded in RTX_AUDIT.md.
+- Partner selection is confirmed; the partner's two source checks remain pending and are not assigned here.
+- The three separately tracked RTX XBRL-tag checks and the LMT/NOC revenue and operating-income XBRL-tag checks are complete.
+- Additional human audit marks and partner-check marks remain pending.
 - The Step 6 automated parser did not extract release units and columns. The source exhibit contains the Q3 table and was used for the labeled figures above.
 - Financial-statement line references for the XBRL facts are saved-text line references, not web-page line numbers.
 - The 10-Q was identified but not substantively reviewed in this fallback packet.
-- Peer facts and tag mappings require independent source verification.
+- Peer value, margin, NOC disposal-gain, and LMT/NOC revenue and operating-income XBRL-tag checks are complete.
 - No fair-value benchmark, price target, or required-return analysis is supplied.
 
 ### Source register
@@ -131,6 +132,8 @@ Strategy Manager review: The five required sections are present. This is a manua
 - [RTX October earnings EX-99, accession 0000101829-26-000030](https://www.sec.gov/Archives/edgar/data/101829/000010182926000030/a2026-10x208xkerexhibit99.htm)
 - [RTX 10-Q index, accession 0000101829-26-000031](https://www.sec.gov/Archives/edgar/data/101829/000010182926000031/0000101829-26-000031-index.htm)
 - [StockAnalysis RTX historical prices](https://stockanalysis.com/stocks/rtx/history/)
+- [LMT 2025 10-K index, accession 0001628280-26-004195](https://www.sec.gov/Archives/edgar/data/936468/000162828026004195/0001628280-26-004195-index.htm)
+- [NOC 2025 10-K index, accession 0001133421-26-000003](https://www.sec.gov/Archives/edgar/data/1133421/000113342126000003/0001133421-26-000003-index.htm)
 
 This is a learning exercise, not financial advice.
 AI assistance: ChatGPT and Codex; Gemini API attempts did not produce a report. Human source verification and judgments remain pending.

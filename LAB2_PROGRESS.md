@@ -6,6 +6,8 @@ Professor's revised Checkpoint 1 deadline: November 3, 2026, 11:59 p.m. Eastern.
 
 ## Completed work
 
+- Partner confirmed RTX as the company for the report on October 31, 2026. The partner's two source checks are still pending.
+- Completed LMT and NOC revenue and operating-income XBRL-tag checks against `PEER_XBRL_EVIDENCE.md` and matching SEC records retrieved by ChatGPT. The partner's two checks remain pending.
 - Updated Step 6 to label each release column as Quarterly, Annual, or Interim.
 - Preserved the source week or month count, the ending date, and the release table units.
 - The label logic does not require a 13-week quarter.
@@ -41,15 +43,25 @@ Professor's revised Checkpoint 1 deadline: November 3, 2026, 11:59 p.m. Eastern.
 ## Unresolved issues
 
 - Student audit against the source filings is still pending.
-- Partner selection is still pending.
+- Partner selection is complete: the partner confirmed RTX as the report company.
 - Two partner checks are still pending.
+- LMT and NOC value, margin, disposal-gain, and revenue/operating-income XBRL-tag checks are recorded as complete.
 - Outstanding Costco practice-report and audit work remains.
-- No human audit marks have been assigned.
+- No Costco practice-report or audit document was found in the workspace; only Costco run artifacts and Lab 2 worksheets were found.
+- Remaining unmarked student audit items are not assigned new marks here.
+
+## RTX audit summary
+
+- Existing audit marks, excluding the duplicate equity row labeled `Covered by Core Claim 6`: Correct `36`; Wrong `0`; Unsupported `0`; Missing `0`.
+- Errors, calculated as Wrong plus Unsupported: `0`.
+- Missing is reported separately: `0`.
+- The duplicate equity row is excluded from pending-item counts.
+- Partner fields and final error count remain blank.
 
 ## Next steps
 
 - Complete the student audit against the saved 10-K, 10-Q, 8-K, and Exhibit 99.1 files.
-- Select a partner and complete two partner checks.
+- Complete the two partner source checks.
 - Complete the outstanding Costco practice-report and audit work.
 - Complete final commit, push, and submission by November 3, 2026, 11:59 p.m. Eastern.
 - Record any approved corrections after those checks.
