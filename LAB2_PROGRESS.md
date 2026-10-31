@@ -26,6 +26,38 @@ Professor's revised Checkpoint 1 deadline: November 3, 2026, 11:59 p.m. Eastern.
 
 - Created `COST_FALLBACK_INPUT.md` from the latest complete saved Costco run.
 - Created `COST_FALLBACK_PROMPT.md` for the manual ChatGPT fallback.
+- Created `COST_AUDIT.md` for report-level review of `COST_FALLBACK_REPORT.md`.
+- Costco report-audit final error counts remain blank; no earlier source checks
+  were transferred into the worksheet.
+- Costco Core Claims 1–4 now have recorded human checks for the stated statement
+  figures and arithmetic. Revenue, operating-income, and net-income XBRL-tag
+  checks remain pending.
+- Costco Core Claims 5–8 now have recorded human checks for the stated figures,
+  periods, definitions, and arithmetic. The diluted-EPS XBRL-tag check remains
+  pending.
+- Costco Core Claims 9–11 now have recorded human checks for the comparable
+  16-week periods, figures, and arithmetic. Separate XBRL-tag checks remain
+  pending.
+- Reconciled `COST_AUDIT.md` to numerical claims actually stated in
+  `COST_FALLBACK_REPORT.md`; removed input-only audit rows and retained pending
+  peer, valuation, planned-capex, CFO-discrepancy, tag, format, and
+  recommendation checks.
+- Created `COST_REMAINING_REVIEW.md` with the remaining TGT/BJ, Costco XBRL,
+  format, recommendation, and limitation checks separated from blank human
+  review fields.
+- Recorded grouped human review as acceptable for TGT/BJ evidence, Costco's
+  four XBRL-tag records, and the displayed report headers, sections, HOLD
+  reasoning, and limitations. ChatGPT's independent SEC retrieval remains
+  separately identified and is not attributed to the user.
+- Reconciled audit metadata: auditor Samuel Parfait; RTX audit dates October
+  29–31, 2026; Costco report-audit date October 31, 2026. Proposed summaries
+  are RTX Correct 36, Wrong 0, Unsupported 0, Missing 0, Errors 0; Costco
+  Correct 32, Wrong 0, Unsupported 0, Missing 0, Errors 0. Final count fields
+  and partner checks remain blank pending review.
+- Finalized the approved student-audit totals: RTX Correct 36, Wrong 0,
+  Unsupported 0, Missing 0, student errors 0; Costco Correct 32, Wrong 0,
+  Unsupported 0, Missing 0, student errors 0. Pending partner checks are
+  excluded from both totals. Technical limitations remain disclosed.
 - No Gemini API calls were made for the Costco fallback.
 - The input includes the saved Costco filings, annual facts, Step 6 output,
   corrected WMT/TGT/BJ peer facts, source references, and missing-evidence labels.
@@ -63,7 +95,7 @@ Professor's revised Checkpoint 1 deadline: November 3, 2026, 11:59 p.m. Eastern.
 - Two partner checks are still pending.
 - LMT and NOC value, margin, disposal-gain, and revenue/operating-income XBRL-tag checks are recorded as complete.
 - Outstanding Costco practice-report and audit work remains.
-- No Costco practice-report or audit document was found in the workspace; only Costco run artifacts and Lab 2 worksheets were found.
+- Costco fallback report and report-audit worksheet now exist: `COST_FALLBACK_REPORT.md` and `COST_AUDIT.md`. No separate Costco partner-check record is present.
 - `submission_data/` contains `COSTCO_WHOLESALE_CORP__facts__run_20261029_221033.json` from the Costco run and `Walmart_Inc__facts__run_20261031_162405.json` from the Walmart SEC data run.
 - Remaining unmarked student audit items are not assigned new marks here.
 

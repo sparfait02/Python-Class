@@ -15,13 +15,23 @@ This worksheet records the limited student checks shown in the Human mark column
 
 ## Audit fields
 
-- Auditor: ____________________
-- Date started: ____________________
-- Date completed: ____________________
-- Total errors: ____________________
+- Auditor: Samuel Parfait
+- Date started: October 29, 2026
+- Date completed: October 31, 2026
+- Total errors: 0
 - Partner name: ____________________
 - Partner check 1: ____________________
 - Partner check 2: ____________________
+
+## Final student-audit summary
+
+Final recorded marks: Correct `36`; Wrong `0`; Unsupported `0`; Missing `0`.
+Student errors, calculated as Wrong plus Unsupported: `0`. Missing is reported
+separately: `0`. Pending partner checks are excluded from these totals.
+
+Unresolved items: the partner's two source checks remain pending. The worksheet
+also preserves its limitations that recorded checks do not constitute blanket
+verification of every citation, measure, or peer mapping.
 
 ## Eleven core claims
 
