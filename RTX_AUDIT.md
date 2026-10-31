@@ -2,7 +2,7 @@
 
 Purpose: manual review of `RTX_FALLBACK_REPORT.md` against the saved source files and course report requirements.
 
-All human marks, error counts, and partner fields are intentionally blank. This worksheet does not state that any claim has been verified.
+This worksheet records the limited student checks shown in the Human mark column. Blank fields remain unfinished. The recorded checks do not constitute blanket verification of every citation, measure, or peer mapping.
 
 ## Source register
 
