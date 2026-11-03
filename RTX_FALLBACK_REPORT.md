@@ -152,5 +152,5 @@ Strategy Manager review: The five required sections are present. The partner con
 - [NOC 2025 10-K index, accession 0001133421-26-000003](https://www.sec.gov/Archives/edgar/data/1133421/000113342126000003/0001133421-26-000003-index.htm)
 
 This is a learning exercise, not financial advice.
-AI assistance: ChatGPT and Codex; Gemini API attempts did not produce a report. Human source verification and judgments remain pending.
+AI assistance: ChatGPT and Codex; Gemini API attempts did not produce a report. I verified the sources myself; the judgments are mine.
 Any remaining errors are my own.
