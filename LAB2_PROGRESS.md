@@ -6,8 +6,8 @@ Professor's revised Checkpoint 1 deadline: November 3, 2026, 11:59 p.m. Eastern.
 
 ## Completed work
 
-- Partner confirmed RTX as the company for the report on October 31, 2026. The partner's two source checks are still pending.
-- Completed LMT and NOC revenue and operating-income XBRL-tag checks against `PEER_XBRL_EVIDENCE.md` and matching SEC records retrieved by ChatGPT. The partner's two checks remain pending.
+- Partner confirmed RTX as the company for the report on October 31, 2026. Ryan Lease completed both RTX partner source checks on November 1, 2026.
+- Completed LMT and NOC revenue and operating-income XBRL-tag checks against `PEER_XBRL_EVIDENCE.md` and matching SEC records retrieved by ChatGPT. The two RTX partner checks are recorded in `RTX_AUDIT.md` and `RTX_FALLBACK_REPORT.md`.
 - Copied only the Costco and Walmart `facts.json` outputs into tracked `submission_data/` with provenance-preserving filenames.
 - Updated Step 6 to label each release column as Quarterly, Annual, or Interim.
 - Preserved the source week or month count, the ending date, and the release table units.
@@ -92,7 +92,7 @@ Professor's revised Checkpoint 1 deadline: November 3, 2026, 11:59 p.m. Eastern.
 
 - Remaining student audit items are pending where not recorded in RTX_AUDIT.md.
 - Partner selection is complete: the partner confirmed RTX as the report company.
-- Two partner checks are still pending.
+- Ryan Lease's two RTX partner checks are complete and recorded; Costco partner checks remain pending if required.
 - LMT and NOC value, margin, disposal-gain, and revenue/operating-income XBRL-tag checks are recorded as complete.
 - Outstanding Costco practice-report and audit work remains.
 - Costco fallback report and report-audit worksheet now exist: `COST_FALLBACK_REPORT.md` and `COST_AUDIT.md`. No separate Costco partner-check record is present.
@@ -105,12 +105,12 @@ Professor's revised Checkpoint 1 deadline: November 3, 2026, 11:59 p.m. Eastern.
 - Errors, calculated as Wrong plus Unsupported: `0`.
 - Missing is reported separately: `0`.
 - The duplicate equity row is excluded from pending-item counts.
-- Partner fields and final error count remain blank.
+- RTX partner fields are recorded. Costco partner fields and any required partner checks remain pending.
 
 ## Next steps
 
 - Complete the student audit against the saved 10-K, 10-Q, 8-K, and Exhibit 99.1 files.
-- Complete the two partner source checks.
+- Complete any remaining Costco partner source checks, if required.
 - Complete the outstanding Costco practice-report and audit work.
 - Complete final commit, push, and submission by November 3, 2026, 11:59 p.m. Eastern.
 - Record any approved corrections after those checks.

@@ -19,9 +19,10 @@ This worksheet records the limited student checks shown in the Human mark column
 - Date started: October 29, 2026
 - Date completed: October 31, 2026
 - Total errors: 0
-- Partner name: ____________________
-- Partner check 1: ____________________
-- Partner check 2: ____________________
+- Partner name: Ryan Lease
+- Partner check date: November 1, 2026
+- Partner check 1: Correct — Q3 2026 net sales $24,965 million, quarter ended September 30, 2026; quarter column, not nine-month column; [RTX Exhibit 99.1](https://www.sec.gov/Archives/edgar/data/101829/000010182926000030/a2026-10x208xkerexhibit99.htm), accession `0000101829-26-000030`.
+- Partner check 2: Correct — Q3 2026 GAAP diluted EPS $1.89 per share, quarter ended September 30, 2026; same quarter column; not adjusted EPS; [RTX Exhibit 99.1](https://www.sec.gov/Archives/edgar/data/101829/000010182926000030/a2026-10x208xkerexhibit99.htm), accession `0000101829-26-000030`.
 
 ## Final student-audit summary
 
@@ -29,9 +30,9 @@ Final recorded marks: Correct `36`; Wrong `0`; Unsupported `0`; Missing `0`.
 Student errors, calculated as Wrong plus Unsupported: `0`. Missing is reported
 separately: `0`. Pending partner checks are excluded from these totals.
 
-Unresolved items: the partner's two source checks remain pending. The worksheet
-also preserves its limitations that recorded checks do not constitute blanket
-verification of every citation, measure, or peer mapping.
+Unresolved items: the worksheet preserves its limitations that recorded checks
+do not constitute blanket verification of every citation, measure, or peer
+mapping. The RTX 10-Q remains identified but not substantively reviewed.
 
 ## Eleven core claims
 

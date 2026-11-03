@@ -2,9 +2,25 @@ RTX Corporation - Filings read: 10-K 0000101829-26-000006; earnings 8-K/EX-99 00
 MANUAL CHATGPT FALLBACK
 Run time: 2026-10-29, prepared after 22:30 Eastern; exact completion timestamp not recorded.
 
+## Partner checks
+
+Partner: Ryan Lease  
+Date checked: November 1, 2026
+
+1. **RTX Q3 2026 net sales — Correct.** $24,965 million for the quarter ended
+   September 30, 2026. Ryan compared the Net Sales row in the Condensed
+   Consolidated Statement of Operations, using the 2026 quarter-ended column
+   and dollar amounts in millions, not the nine-month column.
+2. **RTX Q3 2026 GAAP diluted EPS — Correct.** $1.89 per share for the quarter
+   ended September 30, 2026. Ryan compared the Diluted row under earnings per
+   share attributable to common shareowners in the same 2026 quarter-ended
+   column and confirmed that it is GAAP EPS, not adjusted EPS.
+
+Source for both checks: [RTX Exhibit 99.1](https://www.sec.gov/Archives/edgar/data/101829/000010182926000030/a2026-10x208xkerexhibit99.htm), accession `0000101829-26-000030`.
+
 # RTX - Manual ChatGPT Fallback Research Report
 
-Status: AI-generated draft for human review. The partner confirmed RTX as the selected company. The three separately tracked RTX XBRL-tag checks and the LMT/NOC revenue and operating-income XBRL-tag checks are complete. Student checks of LMT and NOC sales, operating income, operating margins, and NOC's disposal gain are complete. The partner's two source checks remain pending. This report was compiled as a manual fallback; it is not evidence of four successful separate SDK model calls.
+Status: AI-generated draft for human review. The partner confirmed RTX as the selected company. The three separately tracked RTX XBRL-tag checks and the LMT/NOC revenue and operating-income XBRL-tag checks are complete. Student checks of LMT and NOC sales, operating income, operating margins, and NOC's disposal gain are complete. Ryan Lease completed the two partner source checks listed above on November 1, 2026. This report was compiled as a manual fallback; it is not evidence of four successful separate SDK model calls.
 
 ## 1. Overview
 
@@ -112,14 +128,14 @@ Investment Advisor: **HOLD, explicitly provisional.** The evidence supports a co
 
 **Uncertainty:** The packet has no fair-value benchmark, required return, price target, or comparable peer valuation. The 39.23x measure is an annual GAAP-EPS ratio, not forward or trailing-four-quarter P/E. A different recommendation would require a stated valuation method, investor-specific required return, or reliable comparable valuation evidence.
 
-Strategy Manager review: The five required sections are present. The partner confirmed RTX as the selected company. Student audit checks have been recorded in RTX_AUDIT.md. The partner's two source checks and separate XBRL-tag checks remain pending. The provisional HOLD recommendation and its valuation limitations are preserved. This is a manual fallback report and does not claim completed partner checks or completed model calls.
+Strategy Manager review: The five required sections are present. The partner confirmed RTX as the selected company. Student audit checks have been recorded in RTX_AUDIT.md. Ryan Lease's two partner source checks were completed on November 1, 2026, as documented above. The separately tracked RTX and LMT/NOC XBRL-tag checks are recorded as complete. The provisional HOLD recommendation and its valuation limitations are preserved. This is a manual fallback report and does not claim completed model calls.
 
 ### Remaining requirements
 
 - Remaining student audit items are pending where not recorded in RTX_AUDIT.md.
-- Partner selection is confirmed; the partner's two source checks remain pending and are not assigned here.
+- Partner selection is confirmed; Ryan Lease's two source checks are recorded above with their source, date, and evidence scope.
 - The three separately tracked RTX XBRL-tag checks and the LMT/NOC revenue and operating-income XBRL-tag checks are complete.
-- Additional human audit marks and partner-check marks remain pending.
+- Additional source-completeness and limitation review remains subject to the documented audit scope; the two RTX partner checks are complete.
 - The Step 6 automated parser did not extract release units and columns. The source exhibit contains the Q3 table and was used for the labeled figures above.
 - Financial-statement line references for the XBRL facts are saved-text line references, not web-page line numbers.
 - The 10-Q was identified but not substantively reviewed in this fallback packet.
