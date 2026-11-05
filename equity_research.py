@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 import requests
 from dotenv import load_dotenv
@@ -492,6 +492,22 @@ REPORT_PARTS = [
     "Future Developments and Strategic Recommendations",
     "Investment Recommendation",
 ]
+
+
+class AgentState(TypedDict, total=False):
+    run_folder: str
+    accession_line: str
+    role_packets: dict[str, dict[str, Any]]
+    role_outputs: dict[str, dict[str, Any]]
+    attempts: dict[str, int]
+    node_order: list[str]
+    steps_complete: bool
+    manager_review: dict[str, Any]
+    repair_queue: list[dict[str, Any]]
+    compiled_report: str
+    report_path: str
+    verification_output: str
+    model_verification: str
 SOURCE_STATEMENTS = {
     "revenue": "Consolidated Statements of Income",
     "operating_income": "Consolidated Statements of Income",
@@ -541,6 +557,23 @@ ROLE_INSTRUCTIONS = {
         "contain exactly the five required headings and must not add unsupported facts."
     ),
 }
+
+ROLE_FILES = {
+    "Research Analyst": "research_analyst.md",
+    "Financial Analyst": "financial_analyst.md",
+    "Investment Advisor": "investment_advisor.md",
+    "Strategy Manager": "strategy_manager.md",
+    "Verifier": "verifier.md",
+}
+
+
+def role_instruction(role: str) -> str:
+    role_path = Path(__file__).with_name("roles") / ROLE_FILES.get(role, "")
+    if role_path.exists():
+        return role_path.read_text(encoding="utf-8")
+    if role in ROLE_INSTRUCTIONS:
+        return ROLE_INSTRUCTIONS[role]
+    raise ValueError(f"Missing instructions for role: {role}")
 
 
 def line_numbered_excerpt(path: str, start_pattern: str, end_pattern: str, max_lines: int = 500) -> dict[str, Any]:
@@ -602,7 +635,7 @@ def call_gemini(client: Any, role: str, model: str, packet: dict[str, Any]) -> d
             model=model,
             contents=json.dumps(packet, ensure_ascii=False),
             config=types.GenerateContentConfig(
-                system_instruction=ROLE_INSTRUCTIONS[role],
+                system_instruction=role_instruction(role),
                 response_mime_type="application/json",
                 temperature=0.2,
             ),
@@ -783,7 +816,403 @@ def desk_report(
     return report_path
 
 
+def _number_tokens(text: str) -> list[float]:
+    """Return numeric tokens from a report line, ignoring commas and symbols."""
+    values: list[float] = []
+    for token in re.findall(r"(?<![0-9])\(?\$?[-+]?[0-9][0-9,]*(?:\.[0-9]+)?\)?", text):
+        negative = token.startswith("(") and token.endswith(")")
+        cleaned = token.strip("()$").replace(",", "")
+        try:
+            value = float(cleaned)
+        except ValueError:
+            continue
+        values.append(-value if negative else value)
+    return values
+
+
+def _metric_amount(metrics: dict[str, Any], metric: str, period: str = "current") -> float:
+    row = metrics[metric][period]
+    value = float(row["val"])
+    return value / 1_000_000 if row.get("unit") == "USD" else value
+
+
+def _close_enough(actual: float | None, expected: float, tolerance: float = 0.00001) -> bool:
+    return actual is not None and abs(actual - expected) <= tolerance
+
+
+def _display_number(value: float) -> str:
+    if float(value).is_integer():
+        return f"{int(value):,}"
+    return f"{value:.6f}".rstrip("0").rstrip(".")
+
+
+def _extract_table_values(lines: list[str], pattern: str, occurrence: int = 1) -> tuple[list[float], int, str] | None:
+    matches = 0
+    for index, line in enumerate(lines):
+        if re.search(pattern, line, re.I):
+            matches += 1
+            if matches == occurrence:
+                return _number_tokens(line), index + 1, line
+    return None
+
+
+def _filing_evidence(filing_lines: list[str], expected: float, label: str) -> dict[str, Any]:
+    expected_text = f"{expected:g}"
+    for index, line in enumerate(filing_lines):
+        if re.search(label, line, re.I) and expected_text in line.replace(",", ""):
+            return {"line": index + 1, "text": line}
+    return {"line": None, "text": None}
+
+
+def verify_saved_run(path_value: str | Path) -> Path:
+    """Run deterministic checks on one saved run and save marks beside it."""
+    run_path = Path(path_value).expanduser().resolve()
+    if not run_path.is_dir():
+        raise ValueError(f"--verify-only requires a saved run folder: {run_path}")
+    facts_path = run_path / "facts.json"
+    if not facts_path.exists():
+        raise ValueError(f"Saved run is missing facts.json: {facts_path}")
+    report_candidates = [run_path / "desk_report.md", run_path / "report.md"]
+    report_path = next((candidate for candidate in report_candidates if candidate.exists()), None)
+    if report_path is None:
+        candidates = [candidate for candidate in run_path.glob("*.md") if "audit" not in candidate.name.lower() and candidate.name.lower() != "verified_report.md"]
+        report_path = candidates[0] if len(candidates) == 1 else None
+    if report_path is None:
+        raise ValueError(f"Saved run is missing an unambiguous report markdown file: {run_path}")
+    filing_candidates = sorted(run_path.glob("10_K_*.txt"))
+    if not filing_candidates:
+        raise ValueError(f"Saved run is missing a 10-K text file: {run_path}")
+    facts = json.loads(facts_path.read_text(encoding="utf-8"))
+    report_text = report_path.read_text(encoding="utf-8")
+    report_lines = report_text.splitlines()
+    filing_path = filing_candidates[0]
+    filing_lines = filing_path.read_text(encoding="utf-8").splitlines()
+    metrics = facts["primary"]["report"]["metrics"]
+
+    annual_revenue = [_metric_amount(metrics, "revenue", "current"), _metric_amount(metrics, "revenue", "prior")]
+    annual_op = [_metric_amount(metrics, "operating_income", "current"), _metric_amount(metrics, "operating_income", "prior")]
+    annual_net = [_metric_amount(metrics, "net_income", "current"), _metric_amount(metrics, "net_income", "prior")]
+    annual_eps = [_metric_amount(metrics, "diluted_eps", "current"), _metric_amount(metrics, "diluted_eps", "prior")]
+    equity = [_metric_amount(metrics, "stockholders_equity", "current"), _metric_amount(metrics, "stockholders_equity", "prior")]
+    debt = _metric_amount(metrics, "long_term_debt") + _metric_amount(metrics, "current_portion_debt")
+    cfo = _metric_amount(metrics, "cash_from_operations")
+    capex = _metric_amount(metrics, "additions_to_property_and_equipment")
+    expected = {
+        "1": annual_revenue,
+        "2": [(annual_revenue[0] - annual_revenue[1]) / annual_revenue[1] * 100],
+        "3": [annual_op[0], annual_op[0] / annual_revenue[0] * 100],
+        "4": annual_net,
+        "5": annual_eps,
+        "6": [annual_net[0] / ((equity[0] + equity[1]) / 2) * 100],
+        "7": [debt / equity[0]],
+        "8": [cfo - capex],
+    }
+    quarterly_revenue: list[float] | None = None
+    quarterly_eps: list[float] | None = None
+    release_candidates = sorted(run_path.glob("8_K_Exhibit_99_1_*.txt"))
+    if release_candidates:
+        release_lines = release_candidates[0].read_text(encoding="utf-8").splitlines()
+        revenue_row = _extract_table_values(release_lines, r"^Total revenue", 1)
+        eps_row = _extract_table_values(release_lines, r"^Diluted\$", 1)
+        if revenue_row:
+            quarterly_revenue = revenue_row[0][:2]
+        if eps_row:
+            quarterly_eps = eps_row[0][:2]
+    if quarterly_revenue is None or quarterly_eps is None:
+        raise ValueError("Saved run is missing readable quarterly revenue or diluted-EPS release rows.")
+    expected["9"] = quarterly_revenue
+    expected["10"] = [(quarterly_revenue[0] - quarterly_revenue[1]) / quarterly_revenue[1] * 100]
+    expected["11"] = quarterly_eps
+
+    checks: list[dict[str, Any]] = []
+
+    def add_check(number: str, label: str, observed: list[float], source_line: int | None, source_text: str | None, source_file: str) -> None:
+        target = expected[number]
+        passed = len(observed) >= len(target) and all(_close_enough(observed[i], value) for i, value in enumerate(target))
+        checks.append({
+            "claim": number, "label": label, "status": "Correct" if passed else "Wrong",
+            "observed": observed, "expected": target, "source_file": source_file,
+            "source_line": source_line, "source_text": source_text,
+            "correction": None if passed or not observed or not target else {"from": observed[0], "to": target[0]},
+        })
+
+    annual_specs = [
+        ("1", r"^\|\s*Total revenue\s*\|", "annual total revenue", r"^Total revenue"),
+        ("3", r"^\|\s*Operating income\s*\|", "annual operating income", r"^Operating income"),
+        ("4", r"^\|\s*Attributable net income\s*\|", "annual net income", r"^NET INCOME"),
+        ("5", r"^\|\s*GAAP diluted EPS", "annual GAAP diluted EPS", r"^Diluted\$"),
+    ]
+    for number, pattern, label, filing_pattern in annual_specs:
+        row = _extract_table_values(report_lines, pattern, 1)
+        evidence = _filing_evidence(filing_lines, expected[number][0], filing_pattern)
+        observed = row[0][:len(expected[number])] if row else []
+        if number == "3":
+            margin_row = _extract_table_values(report_lines, r"^\|\s*Operating margin\s*\|", 1)
+            observed = [observed[0] if observed else None, margin_row[0][-1] if margin_row else None]
+        add_check(number, label, observed, evidence["line"], evidence["text"], str(filing_path))
+
+    formula_specs = [
+        ("2", r"^\|\s*Revenue growth\s*\|", "annual revenue growth"),
+        ("6", r"Return on average equity", "return on average equity"),
+        ("7", r"Debt/equity", "debt/equity"),
+        ("8", r"Course-defined free cash flow", "course-defined free cash flow"),
+    ]
+    for number, pattern, label in formula_specs:
+        row = _extract_table_values(report_lines, pattern, 1)
+        add_check(number, label, row[0][-1:] if row else [], row[1] if row else None, row[2] if row else None, str(report_path))
+
+    quarterly_revenue_row = _extract_table_values(report_lines, r"^\|\s*Total revenue\s*\|", 2)
+    add_check("9", "quarterly total revenue", quarterly_revenue_row[0][:2] if quarterly_revenue_row else [], quarterly_revenue_row[1] if quarterly_revenue_row else None, quarterly_revenue_row[2] if quarterly_revenue_row else None, str(report_path))
+    growth_row = _extract_table_values(report_lines, r"Calculator-checked total-revenue growth", 1)
+    growth_value = []
+    if growth_row:
+        match = re.search(r"=\s*([0-9]+(?:\.[0-9]+)?)%", growth_row[2])
+        if match:
+            growth_value = [float(match.group(1))]
+    add_check("10", "quarterly total-revenue growth", growth_value, growth_row[1] if growth_row else None, growth_row[2] if growth_row else None, str(report_path))
+    quarterly_eps_row = _extract_table_values(report_lines, r"^\|\s*GAAP diluted EPS\s*\|", 1)
+    add_check("11", "quarterly GAAP diluted EPS", quarterly_eps_row[0][:2] if quarterly_eps_row else [], quarterly_eps_row[1] if quarterly_eps_row else None, quarterly_eps_row[2] if quarterly_eps_row else None, str(report_path))
+    annual_growth_expected = expected["2"][0]
+    expected["2A"] = [annual_growth_expected]
+    for index, line in enumerate(report_lines):
+        if re.search(r"annual revenue growth", line, re.I) and not re.search(r"^\|\s*Revenue growth", line, re.I):
+            percentages = re.findall(r"([0-9]+(?:\.[0-9]+)?)%", line)
+            if percentages:
+                observed_growth = float(percentages[-1])
+                evidence = _filing_evidence(filing_lines, annual_revenue[0], r"^Total revenue")
+                add_check("2A", "additional annual revenue-growth claim", [observed_growth], evidence["line"], evidence["text"], str(filing_path))
+                break
+
+    summary = {
+        "correct": sum(check["status"] == "Correct" for check in checks),
+        "wrong": sum(check["status"] == "Wrong" for check in checks),
+        "unsupported": 0,
+    }
+    summary["errors"] = summary["wrong"] + summary["unsupported"]
+    marks = {
+        "report": str(report_path), "filing": str(filing_path), "facts": str(facts_path),
+        "model_check": "untested: verify-only uses deterministic code and makes no API calls",
+        "checks": checks, "summary": summary,
+    }
+    marks_path = run_path / "verification_marks.json"
+    output_path = run_path / "verification_output.txt"
+    verified_report_path = run_path / "verified_report.md"
+    output_lines = [f"Verifier mode: --verify-only {run_path}", f"Report: {report_path}", f"Filing evidence: {filing_path}", f"Facts: {facts_path}", "Model-based check: untested (no API call)", ""]
+    for check in checks:
+        evidence = f"; evidence line {check['source_line']}: {check['source_text']}" if check["source_line"] else ""
+        output_lines.append(f"Core Claim {check['claim']}: {check['status']} — observed={check['observed']}; expected={check['expected']}{evidence}")
+    output_lines.extend(["", f"Summary: Correct={summary['correct']}; Wrong={summary['wrong']}; Unsupported=0; Errors={summary['errors']}"])
+    output_path.write_text("\n".join(output_lines) + "\n", encoding="utf-8")
+    marks_path.write_text(json.dumps(marks, indent=2), encoding="utf-8")
+    corrected_report_text = report_text
+    correction_lines: list[str] = []
+    for check in checks:
+        if check["status"] not in {"Wrong", "Unsupported"} or not check.get("correction"):
+            continue
+        old = _display_number(float(check["correction"]["from"]))
+        new = _display_number(float(check["correction"]["to"]))
+        corrected_report_text = corrected_report_text.replace(old, new)
+        correction_lines.append(f"- Core Claim {check['claim']}: corrected {old} to {new} using filing evidence line {check['source_line']}.")
+    verified_report_path.write_text(corrected_report_text + "\n\n## Verification marks\n\n" + "\n".join(f"- Core Claim {c['claim']}: {c['status']}" for c in checks) + ("\n" + "\n".join(correction_lines) if correction_lines else "") + "\n", encoding="utf-8")
+    print(output_path)
+    print(verified_report_path)
+    print(f"Summary: Correct={summary['correct']}; Wrong={summary['wrong']}; Unsupported=0; Errors={summary['errors']}")
+    return output_path
+
+
+def build_agent_graph(role_call: Any, local_verifier: Any = verify_saved_run) -> Any:
+    """Build the fixed Lab 04 graph. The verifier has no bypass edge."""
+    from langgraph.graph import END, START, StateGraph
+
+    def begin(state: dict[str, Any], name: str) -> list[str]:
+        print(f"Node: {name}")
+        return list(state.get("node_order", [])) + [name]
+
+    def data_step_node(state: dict[str, Any], number: int) -> dict[str, Any]:
+        return {"node_order": begin(state, f"Step {number}"), "steps_complete": True}
+
+    def research_node(state: dict[str, Any]) -> dict[str, Any]:
+        packet = state["role_packets"]["Research Analyst"]
+        result = role_call("Research Analyst", packet)
+        attempts = dict(state.get("attempts", {}))
+        attempts["Research Analyst"] = attempts.get("Research Analyst", 0) + 1
+        return {"node_order": begin(state, "Research Analyst"), "role_outputs": {**state.get("role_outputs", {}), "Research Analyst": result}, "attempts": attempts}
+
+    def financial_node(state: dict[str, Any]) -> dict[str, Any]:
+        packet = state["role_packets"]["Financial Analyst"]
+        result = role_call("Financial Analyst", packet)
+        attempts = dict(state.get("attempts", {}))
+        attempts["Financial Analyst"] = attempts.get("Financial Analyst", 0) + 1
+        return {"node_order": begin(state, "Financial Analyst"), "role_outputs": {**state.get("role_outputs", {}), "Financial Analyst": result}, "attempts": attempts}
+
+    def advisor_node(state: dict[str, Any]) -> dict[str, Any]:
+        packet = role_packet(
+            "Form an investment thesis and recommendation from the two analyst outputs only.",
+            {"research_analyst": state["role_outputs"]["Research Analyst"], "financial_analyst": state["role_outputs"]["Financial Analyst"]},
+            "JSON with thesis, recommendation, deciding_number, rationale, evidence, and gaps.",
+        )
+        result = role_call("Investment Advisor", packet)
+        attempts = dict(state.get("attempts", {}))
+        attempts["Investment Advisor"] = attempts.get("Investment Advisor", 0) + 1
+        return {"node_order": begin(state, "Investment Advisor"), "role_outputs": {**state.get("role_outputs", {}), "Investment Advisor": result}, "attempts": attempts}
+
+    def manager_review_node(state: dict[str, Any]) -> dict[str, Any]:
+        packet = role_packet(
+            "Check the three role outputs for the five required report parts and identify missing or inconsistent parts.",
+            {"required_parts": REPORT_PARTS, **state["role_outputs"]},
+            "JSON with failed_parts and repair_packets. Return an empty list when no repair is needed.",
+        )
+        review = role_call("Strategy Manager", packet)
+        queue: list[dict[str, Any]] = []
+        for repair in review.get("repair_packets", []):
+            if not isinstance(repair, dict):
+                continue
+            role = repair.get("role")
+            if role in {"Research Analyst", "Financial Analyst", "Investment Advisor"} and state.get("attempts", {}).get(role, 0) < 2:
+                if all(repair.get(key) is not None for key in ("task", "context", "expected_output")):
+                    queue.append(repair)
+        attempts = dict(state.get("attempts", {}))
+        attempts["Strategy Manager"] = attempts.get("Strategy Manager", 0) + 1
+        return {"node_order": begin(state, "Strategy Manager (review)"), "manager_review": review, "repair_queue": queue, "attempts": attempts}
+
+    def repair_node(state: dict[str, Any], role: str) -> dict[str, Any]:
+        repair = state["repair_queue"][0]
+        packet = role_packet(repair["task"], repair["context"], repair["expected_output"])
+        result = role_call(role, packet)
+        attempts = dict(state.get("attempts", {}))
+        attempts[role] = attempts.get(role, 0) + 1
+        outputs = {**state.get("role_outputs", {}), role: result}
+        return {"node_order": begin(state, f"{role} (repair)"), "role_outputs": outputs, "attempts": attempts, "repair_queue": state["repair_queue"][1:]}
+
+    def compile_node(state: dict[str, Any]) -> dict[str, Any]:
+        packet = role_packet(
+            "Compile the final report after the consistency check and any one-time role repairs.",
+            {"required_parts": REPORT_PARTS, **state["role_outputs"], "initial_review": state.get("manager_review", {})},
+            "JSON with report_markdown, section_status, and gaps. Include exactly the five required headings.",
+        )
+        result = role_call("Strategy Manager", packet)
+        report_markdown = str(result.get("report_markdown", "")).strip()
+        if not report_markdown:
+            raise ValueError("Strategy Manager returned no report markdown.")
+        missing_parts = [part for part in REPORT_PARTS if not re.search(rf"^#+\s*{re.escape(part)}\s*$", report_markdown, re.I | re.M)]
+        if missing_parts:
+            raise ValueError("Strategy Manager report is missing required parts: " + ", ".join(missing_parts))
+        run_folder = Path(state["run_folder"])
+        accession_line = state["accession_line"]
+        report_path = run_folder / "desk_report.md"
+        report_path.write_text(f"Filings read: {accession_line}\nRun time: {datetime.now().isoformat(timespec='seconds')}\n\n{report_markdown}\n", encoding="utf-8")
+        attempts = dict(state.get("attempts", {}))
+        attempts["Strategy Manager"] = attempts.get("Strategy Manager", 0) + 1
+        return {"node_order": begin(state, "Strategy Manager (compile)"), "compiled_report": report_markdown, "report_path": str(report_path), "attempts": attempts}
+
+    def verifier_node(state: dict[str, Any]) -> dict[str, Any]:
+        local_output = local_verifier(state["run_folder"])
+        run_folder = Path(state["run_folder"])
+        filing_texts = {}
+        for path in run_folder.glob("*.txt"):
+            if path.name.startswith(("10_K_", "10_Q_", "8_K_")):
+                filing_texts[path.name] = path.read_text(encoding="utf-8")
+        facts = json.loads((run_folder / "facts.json").read_text(encoding="utf-8"))
+        model_packet = role_packet(
+            "Check sourced periods and definitions in the compiled report against the saved filing texts and facts.",
+            {"compiled_report": state["compiled_report"], "saved_filings": filing_texts, "saved_facts": facts},
+            "JSON with checks, corrections, and gaps. Mark each item Correct, Wrong, or Unsupported.",
+        )
+        model_result = role_call("Verifier", model_packet)
+        model_path = run_folder / "model_verification.json"
+        model_path.write_text(json.dumps(model_result, indent=2), encoding="utf-8")
+        verified_path = run_folder / "verified_report.md"
+        if verified_path.exists():
+            with verified_path.open("a", encoding="utf-8") as handle:
+                handle.write("\n## Model-based period and definition checks\n\n")
+                handle.write(json.dumps(model_result, indent=2, ensure_ascii=False) + "\n")
+        return {"node_order": begin(state, "Verifier"), "verification_output": str(local_output), "model_verification": str(model_path)}
+
+    def review_route(state: dict[str, Any]) -> str:
+        queue = state.get("repair_queue", [])
+        if not queue:
+            return "compile"
+        role = queue[0]["role"]
+        return {"Research Analyst": "repair_research", "Financial Analyst": "repair_financial", "Investment Advisor": "repair_advisor"}[role]
+
+    def repair_route(state: dict[str, Any]) -> str:
+        queue = state.get("repair_queue", [])
+        if not queue:
+            return "compile"
+        role = queue[0]["role"]
+        return {"Research Analyst": "repair_research", "Financial Analyst": "repair_financial", "Investment Advisor": "repair_advisor"}[role]
+
+    graph = StateGraph(AgentState)
+    for number in range(1, 8):
+        graph.add_node(f"step_{number}", lambda state, number=number: data_step_node(state, number))
+    graph.add_node("research", research_node)
+    graph.add_node("financial", financial_node)
+    graph.add_node("advisor", advisor_node)
+    graph.add_node("manager_review", manager_review_node)
+    graph.add_node("repair_research", lambda state: repair_node(state, "Research Analyst"))
+    graph.add_node("repair_financial", lambda state: repair_node(state, "Financial Analyst"))
+    graph.add_node("repair_advisor", lambda state: repair_node(state, "Investment Advisor"))
+    graph.add_node("manager_compile", compile_node)
+    graph.add_node("verifier", verifier_node)
+    graph.add_edge(START, "step_1")
+    for number in range(1, 7):
+        graph.add_edge(f"step_{number}", f"step_{number + 1}")
+    graph.add_edge("step_7", "research")
+    graph.add_edge("research", "financial")
+    graph.add_edge("financial", "advisor")
+    graph.add_edge("advisor", "manager_review")
+    graph.add_conditional_edges("manager_review", review_route, {"repair_research": "repair_research", "repair_financial": "repair_financial", "repair_advisor": "repair_advisor", "compile": "manager_compile"})
+    graph.add_conditional_edges("repair_research", repair_route, {"repair_research": "repair_research", "repair_financial": "repair_financial", "repair_advisor": "repair_advisor", "compile": "manager_compile"})
+    graph.add_conditional_edges("repair_financial", repair_route, {"repair_research": "repair_research", "repair_financial": "repair_financial", "repair_advisor": "repair_advisor", "compile": "manager_compile"})
+    graph.add_conditional_edges("repair_advisor", repair_route, {"repair_research": "repair_research", "repair_financial": "repair_financial", "repair_advisor": "repair_advisor", "compile": "manager_compile"})
+    graph.add_edge("manager_compile", "verifier")
+    graph.add_edge("verifier", END)
+    return graph.compile()
+
+
+def run_agent_team(
+    args: argparse.Namespace,
+    company: str,
+    cik: str,
+    filings: list[Filing],
+    saved: dict[str, str],
+    report: dict[str, Any],
+    peer_reports: dict[str, Any],
+    facts_folder: Path,
+    step6_text: str,
+) -> dict[str, Any]:
+    api_key = os.getenv("API_KEY")
+    if not api_key:
+        raise ValueError("API_KEY is missing from .env; desk calls were not started.")
+    from google import genai
+    from google.genai import types
+    gemini = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=60000))
+    model = args.gemini_model or GEMINI_MODEL
+    filing_map = {filing.form: filing for filing in filings}
+    release = Path(saved["8-K Exhibit 99.1"])
+    business = line_numbered_excerpt(saved["10-K"], r"^Item\s+1\s*[^\w\s]\s*Business", r"^Item\s+1A\s*[^\w\s]")
+    mda = line_numbered_excerpt(saved["10-K"], r"^Item\s+7\s*[^\w\s]\s*Management.?s Discussion", r"^Item\s+7A\s*[^\w\s]|^Item\s+8\s*[^\w\s]")
+    release_lines = "\n".join(f"{i + 1}: {line}" for i, line in enumerate(release.read_text(encoding="utf-8").splitlines()))
+    primary_accession = filing_map.get("10-K").accession if filing_map.get("10-K") else "unavailable"
+    primary_facts = fact_context(report, primary_accession, "10-K")
+    peer_facts = {ticker: fact_context(value["report"], "see peer 10-K accession in facts", "10-K") for ticker, value in peer_reports.items()}
+    common = {"source_filings": [{"form": f.form, "accession": f.accession} for f in filings], "business_section": business, "mda_section": mda, "earnings_release": {"file": str(release), "lines": release_lines}}
+    packets = {
+        "Research Analyst": role_packet("Analyze the business model, competitive position, catalysts, and recent developments.", common, "JSON with evidence-backed fields and gaps."),
+        "Financial Analyst": role_packet("Analyze statements, ratios, the earnings-release quarter, peers, and valuation inputs.", {"primary_facts": primary_facts, "ratios": {"price": args.price, "calculations": calculations(report, args.price)}, "step6_output": step6_text, "peer_facts": peer_facts}, "JSON with statement_analysis, quarter_analysis, peer_analysis, valuation_insights, calculator_requests, evidence, and gaps."),
+    }
+    def role_call(role: str, packet: dict[str, Any]) -> dict[str, Any]:
+        return call_gemini(gemini, role, model, packet)
+    initial_state = {"run_folder": str(facts_folder), "accession_line": "; ".join(f"{f.form} {f.accession}" for f in filings), "role_packets": packets, "role_outputs": {}, "attempts": {}}
+    result = build_agent_graph(role_call).invoke(initial_state)
+    (facts_folder / "graph_trace.json").write_text(json.dumps({"node_order": result.get("node_order", []), "attempts": result.get("attempts", {})}, indent=2), encoding="utf-8")
+    print(f"Saved graph trace: {facts_folder / 'graph_trace.json'}")
+    return result
+
 def run(args: argparse.Namespace) -> None:
+    if args.verify_only:
+        verify_saved_run(args.verify_only)
+        return
     load_dotenv(Path(__file__).with_name(".env"), override=True)
     user_agent = os.getenv("SEC_USER_AGENT")
     if not user_agent:
@@ -871,16 +1300,17 @@ def run(args: argparse.Namespace) -> None:
     if args.desk:
         if facts_folder is None or report is None:
             raise ValueError("The desk requires the complete seven-step run and saved facts.")
-        desk_report(args, company, cik, filings, saved, report, peer_reports, facts_folder, step6_text)
+        run_agent_team(args, company, cik, filings, saved, report, peer_reports, facts_folder, step6_text)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Collect SEC equity-research data.")
-    parser.add_argument("ticker")
+    parser.add_argument("ticker", nargs="?")
     parser.add_argument("--peers", nargs="*", default=[], metavar="TICKER")
     parser.add_argument("--price", type=float)
     parser.add_argument("--step", type=int, choices=range(1, 8))
     parser.add_argument("--desk", action="store_true", help="Run the seven Lab 2 steps and the four-role desk.")
+    parser.add_argument("--verify-only", metavar="PATH", help="Verify one saved run folder without running SEC steps or model calls.")
     parser.add_argument(
         "--model",
         dest="gemini_model",

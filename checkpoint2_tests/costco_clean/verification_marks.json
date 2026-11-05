@@ -1,0 +1,191 @@
+{
+  "report": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\COST_FALLBACK_REPORT.md",
+  "filing": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\10_K_0000909832-26-000093.txt",
+  "facts": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\facts.json",
+  "model_check": "untested: verify-only uses deterministic code and makes no API calls",
+  "checks": [
+    {
+      "claim": "1",
+      "label": "annual total revenue",
+      "status": "Correct",
+      "observed": [
+        303154.0,
+        275235.0
+      ],
+      "expected": [
+        303154.0,
+        275235.0
+      ],
+      "source_file": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\10_K_0000909832-26-000093.txt",
+      "source_line": 626,
+      "source_text": "Total revenue303,154 275,235 254,453",
+      "correction": null
+    },
+    {
+      "claim": "3",
+      "label": "annual operating income",
+      "status": "Correct",
+      "observed": [
+        11685.0,
+        3.854477
+      ],
+      "expected": [
+        11685.0,
+        3.8544766026507977
+      ],
+      "source_file": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\10_K_0000909832-26-000093.txt",
+      "source_line": 630,
+      "source_text": "Operating income11,685 10,383 9,285",
+      "correction": null
+    },
+    {
+      "claim": "4",
+      "label": "annual net income",
+      "status": "Correct",
+      "observed": [
+        9226.0,
+        8099.0
+      ],
+      "expected": [
+        9226.0,
+        8099.0
+      ],
+      "source_file": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\10_K_0000909832-26-000093.txt",
+      "source_line": 636,
+      "source_text": "NET INCOME$9,226 $8,099 $7,367",
+      "correction": null
+    },
+    {
+      "claim": "5",
+      "label": "annual GAAP diluted EPS",
+      "status": "Correct",
+      "observed": [
+        20.76,
+        18.21
+      ],
+      "expected": [
+        20.76,
+        18.21
+      ],
+      "source_file": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\10_K_0000909832-26-000093.txt",
+      "source_line": 639,
+      "source_text": "Diluted$20.76 $18.21 $16.56",
+      "correction": null
+    },
+    {
+      "claim": "2",
+      "label": "annual revenue growth",
+      "status": "Correct",
+      "observed": [
+        10.143695
+      ],
+      "expected": [
+        10.143695387577887
+      ],
+      "source_file": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\COST_FALLBACK_REPORT.md",
+      "source_line": 50,
+      "source_text": "| Revenue growth | `(303,154 - 275,235) / 275,235 \u00d7 100` | 10.143695% |",
+      "correction": null
+    },
+    {
+      "claim": "6",
+      "label": "return on average equity",
+      "status": "Correct",
+      "observed": [
+        28.402112
+      ],
+      "expected": [
+        28.402111841396398
+      ],
+      "source_file": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\COST_FALLBACK_REPORT.md",
+      "source_line": 52,
+      "source_text": "| Return on average equity | `9,226 / ((35,803 + 29,164) / 2) \u00d7 100` | 28.402112% |",
+      "correction": null
+    },
+    {
+      "claim": "7",
+      "label": "debt/equity",
+      "status": "Correct",
+      "observed": [
+        0.172108
+      ],
+      "expected": [
+        0.17210848252939698
+      ],
+      "source_file": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\COST_FALLBACK_REPORT.md",
+      "source_line": 53,
+      "source_text": "| Debt/equity | `(3,914 + 2,248) / 35,803` | 0.172108\u00d7 |",
+      "correction": null
+    },
+    {
+      "claim": "8",
+      "label": "course-defined free cash flow",
+      "status": "Correct",
+      "observed": [
+        9382.0
+      ],
+      "expected": [
+        9382.0
+      ],
+      "source_file": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\COST_FALLBACK_REPORT.md",
+      "source_line": 54,
+      "source_text": "| Course-defined free cash flow | `15,817 - 6,435` | $9,382 million |",
+      "correction": null
+    },
+    {
+      "claim": "9",
+      "label": "quarterly total revenue",
+      "status": "Correct",
+      "observed": [
+        95723.0,
+        86156.0
+      ],
+      "expected": [
+        95723.0,
+        86156.0
+      ],
+      "source_file": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\COST_FALLBACK_REPORT.md",
+      "source_line": 37,
+      "source_text": "| Total revenue | 95,723 | 86,156 | E, total revenue row, line 43 |",
+      "correction": null
+    },
+    {
+      "claim": "10",
+      "label": "quarterly total-revenue growth",
+      "status": "Correct",
+      "observed": [
+        11.104276
+      ],
+      "expected": [
+        11.104275964529458
+      ],
+      "source_file": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\COST_FALLBACK_REPORT.md",
+      "source_line": 40,
+      "source_text": "Calculator-checked total-revenue growth is `(95,723 - 86,156) / 86,156 \u00d7 100 = 11.104276%`, or **11.1043%**. This uses total revenue, including membership fees. It is not the release's separately reported **11.2% net-sales growth**. [E, lines 10 and 40\u201356.]",
+      "correction": null
+    },
+    {
+      "claim": "11",
+      "label": "quarterly GAAP diluted EPS",
+      "status": "Correct",
+      "observed": [
+        6.75,
+        5.87
+      ],
+      "expected": [
+        6.75,
+        5.87
+      ],
+      "source_file": "C:\\Users\\samue\\OneDrive - Auburn University\\Documents\\GitHub\\Python-Class\\checkpoint2_tests\\costco_clean\\COST_FALLBACK_REPORT.md",
+      "source_line": 38,
+      "source_text": "| GAAP diluted EPS | 6.75 | 5.87 | E, diluted row, line 56 |",
+      "correction": null
+    }
+  ],
+  "summary": {
+    "correct": 11,
+    "wrong": 0,
+    "unsupported": 0,
+    "errors": 0
+  }
+}

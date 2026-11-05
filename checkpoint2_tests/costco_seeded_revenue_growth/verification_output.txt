@@ -1,0 +1,20 @@
+Verifier mode: --verify-only C:\Users\samue\OneDrive - Auburn University\Documents\GitHub\Python-Class\checkpoint2_tests\costco_seeded_revenue_growth
+Report: C:\Users\samue\OneDrive - Auburn University\Documents\GitHub\Python-Class\checkpoint2_tests\costco_seeded_revenue_growth\COST_FALLBACK_REPORT.md
+Filing evidence: C:\Users\samue\OneDrive - Auburn University\Documents\GitHub\Python-Class\checkpoint2_tests\costco_seeded_revenue_growth\10_K_0000909832-26-000093.txt
+Facts: C:\Users\samue\OneDrive - Auburn University\Documents\GitHub\Python-Class\checkpoint2_tests\costco_seeded_revenue_growth\facts.json
+Model-based check: untested (no API call)
+
+Core Claim 1: Correct — observed=[303154.0, 275235.0]; expected=[303154.0, 275235.0]; evidence line 626: Total revenue303,154 275,235 254,453
+Core Claim 3: Correct — observed=[11685.0, 3.854477]; expected=[11685.0, 3.8544766026507977]; evidence line 630: Operating income11,685 10,383 9,285
+Core Claim 4: Correct — observed=[9226.0, 8099.0]; expected=[9226.0, 8099.0]; evidence line 636: NET INCOME$9,226 $8,099 $7,367
+Core Claim 5: Correct — observed=[20.76, 18.21]; expected=[20.76, 18.21]; evidence line 639: Diluted$20.76 $18.21 $16.56
+Core Claim 2: Correct — observed=[10.143695]; expected=[10.143695387577887]; evidence line 50: | Revenue growth | `(303,154 - 275,235) / 275,235 × 100` | 10.143695% |
+Core Claim 6: Correct — observed=[28.402112]; expected=[28.402111841396398]; evidence line 52: | Return on average equity | `9,226 / ((35,803 + 29,164) / 2) × 100` | 28.402112% |
+Core Claim 7: Correct — observed=[0.172108]; expected=[0.17210848252939698]; evidence line 53: | Debt/equity | `(3,914 + 2,248) / 35,803` | 0.172108× |
+Core Claim 8: Correct — observed=[9382.0]; expected=[9382.0]; evidence line 54: | Course-defined free cash flow | `15,817 - 6,435` | $9,382 million |
+Core Claim 9: Correct — observed=[95723.0, 86156.0]; expected=[95723.0, 86156.0]; evidence line 37: | Total revenue | 95,723 | 86,156 | E, total revenue row, line 43 |
+Core Claim 10: Correct — observed=[11.104276]; expected=[11.104275964529458]; evidence line 40: Calculator-checked total-revenue growth is `(95,723 - 86,156) / 86,156 × 100 = 11.104276%`, or **11.1043%**. This uses total revenue, including membership fees. It is not the release's separately reported **11.2% net-sales growth**. [E, lines 10 and 40–56.]
+Core Claim 11: Correct — observed=[6.75, 5.87]; expected=[6.75, 5.87]; evidence line 38: | GAAP diluted EPS | 6.75 | 5.87 | E, diluted row, line 56 |
+Core Claim 2A: Wrong — observed=[14.143695]; expected=[10.143695387577887]; evidence line 626: Total revenue303,154 275,235 254,453
+
+Summary: Correct=11; Wrong=1; Unsupported=0; Errors=1
