@@ -114,3 +114,21 @@ Professor's revised Checkpoint 1 deadline: November 3, 2026, 11:59 p.m. Eastern.
 - Complete the outstanding Costco practice-report and audit work.
 - Complete final commit, push, and submission by November 3, 2026, 11:59 p.m. Eastern.
 - Record any approved corrections after those checks.
+
+## FIN 67110 Lab 05
+
+- Added `app.py`, a Streamlit page that runs the existing full CLI path. The
+  path remains Steps 1 through 7, the four roles, Strategy Manager compile, and
+  the mandatory Verifier.
+- Added completed student-authored persona files under `personas/` for the
+  Research Analyst, Financial Analyst, and Investment Advisor. The matching
+  role instructions load the corresponding persona content.
+- Added the Lab 05 `Insight:` requirements to the analyst, Manager, and Verifier
+  instructions.
+- Passing offline checks remain separate from the live run: the offline UI
+  check passed, the offline graph check passed, and the persona content check
+  confirmed that each completed persona reaches its matching role.
+- The Streamlit app opened successfully in the browser, but the live Costco run
+  stopped at `Error: Research Analyst Gemini call failed (ServerError)`.
+- No live report or live Verifier output was produced. The live provider run
+  remains unresolved; do not retry it without a new instruction.

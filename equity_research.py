@@ -566,13 +566,22 @@ ROLE_FILES = {
     "Verifier": "verifier.md",
 }
 
+PERSONA_FILES = {
+    "Research Analyst": "research_analyst.md",
+    "Financial Analyst": "financial_analyst.md",
+    "Investment Advisor": "investment_advisor.md",
+}
+
 
 def role_instruction(role: str) -> str:
     role_path = Path(__file__).with_name("roles") / ROLE_FILES.get(role, "")
+    persona_path = Path(__file__).with_name("personas") / PERSONA_FILES.get(role, "")
+    persona = persona_path.read_text(encoding="utf-8").strip() if persona_path.exists() else ""
+    persona_text = f"\n\nPERSONA (student-authored file; use it when present):\n{persona}" if persona else ""
     if role_path.exists():
-        return role_path.read_text(encoding="utf-8")
+        return role_path.read_text(encoding="utf-8") + persona_text
     if role in ROLE_INSTRUCTIONS:
-        return ROLE_INSTRUCTIONS[role]
+        return ROLE_INSTRUCTIONS[role] + persona_text
     raise ValueError(f"Missing instructions for role: {role}")
 
 
