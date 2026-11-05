@@ -635,6 +635,39 @@ def parse_json_response(text: str, role: str) -> dict[str, Any]:
     return value
 
 
+def redact_provider_diagnostic(value: Any) -> str:
+    """Remove credentials from diagnostic text; never include request bodies."""
+    text = str(value)
+    secrets = [value for name, value in os.environ.items()
+               if value and re.search(r"key|token|secret|password|credential", name, re.I)]
+    for secret in sorted(secrets, key=len, reverse=True):
+        text = text.replace(secret, "[REDACTED]")
+    text = re.sub(r"AIza[\w-]+", "[REDACTED]", text)
+    text = re.sub(r"(?i)(bearer\s+)[^\s,;\"']+", r"\1[REDACTED]", text)
+    text = re.sub(
+        r"(?i)([\"']?(?:api[_-]?key|key|token|access_token|password|secret|x-goog-api-key)[\"']?\s*[:=]\s*)(?:\"[^\"]*\"|'[^']*'|[^\s&,;}]+)",
+        r"\1[REDACTED]", text,
+    )
+    # Keep the diagnostic on one log line and bound unstructured provider text.
+    return " ".join(text.split())[:2000]
+
+
+def gemini_error_diagnostic(error: Exception, role: str, model: str) -> str:
+    response = getattr(error, "response", None)
+    code = getattr(error, "code", None) or getattr(response, "status_code", None)
+    message = getattr(error, "message", None)
+    fields = {
+        "model": model,
+        "http_status": code,
+        "provider_status": getattr(error, "status", None),
+        "message": message if message is not None else str(error),
+    }
+    details = {name: redact_provider_diagnostic(value) for name, value in fields.items()
+               if value is not None}
+    return (f"{redact_provider_diagnostic(role)} Gemini call failed "
+            f"({type(error).__name__}): {json.dumps(details, ensure_ascii=False)}")
+
+
 def call_gemini(client: Any, role: str, model: str, packet: dict[str, Any]) -> dict[str, Any]:
     print(f"Role: {role}")
     from google.genai import types
@@ -650,7 +683,8 @@ def call_gemini(client: Any, role: str, model: str, packet: dict[str, Any]) -> d
             ),
         )
     except Exception as error:
-        raise ValueError(f"{role} Gemini call failed ({type(error).__name__}).") from error
+        # Do not chain the raw SDK exception: its details may contain credentials.
+        raise ValueError(gemini_error_diagnostic(error, role, model)) from None
     if not response.text:
         raise ValueError(f"{role} returned an empty response.")
     return parse_json_response(response.text, role)
