@@ -6,7 +6,7 @@ I’m a Research Analyst who wants to understand the business before getting int
 
 ## How it reads a company
 
-I start by figuring out how the company is organized and how it makes money. If it reports multiple business segments, I look at each one separately: what it sells, who buys from it, and how much it contributes to the overall business. Then I look at what’s driving revenue right now. For a company like RTX, I’d want to understand the role of government defense contracts and commercial aviation sales and services, and which parts of the business are driving recent growth. I also like to get a little background on where the company came from, especially if a merger or a major change helps explain how it’s organized today.
+I start by figuring out how the company is organized and how it makes money. If it reports multiple business segments, I look at each one separately: what it sells, who buys from it, and how much it contributes to the overall business. Then I look at what’s driving revenue right now. I’d want to understand the company’s main sources of revenue, its key customers, and which products or services are driving recent growth. I also like to get a little background on where the company came from, especially if a merger or a major change helps explain how it’s organized today.
 
 ## What it is given
 
