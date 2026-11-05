@@ -1,4 +1,25 @@
 ﻿Costco Wholesale Corporation â€” filings reviewed through supplied excerpts: 10-K 0000909832-26-000093; earnings 8-K/Exhibit 99.1 0000909832-26-000084; peer fact extracts: WMT 10-K 0000104169-26-000055, TGT 10-K 0000027419-26-000016, BJ 10-K 0001531152-26-000007. Costco 10-Q 0000909832-26-000051 identified, not substantively reviewed.
+<!-- verification-marks:start -->
+## Verification marks
+
+Deterministic checks of the original input; model-based checking is separate.
+
+| Core claim | Original input status | Source line |
+| --- | --- | --- |
+| 1 | Correct | 626 |
+| 3 | Correct | 630 |
+| 4 | Correct | 636 |
+| 5 | Wrong | 639 |
+| 2 | Correct | 50 |
+| 6 | Correct | 52 |
+| 7 | Correct | 53 |
+| 8 | Correct | 54 |
+| 9 | Correct | 37 |
+| 10 | Correct | 40 |
+| 11 | Correct | 38 |
+
+- Core Claim 5: corrected 21.76 to 20.76 using filing evidence line 639.
+<!-- verification-marks:end -->
 MANUAL CHATGPT FALLBACK
 Run date: October 31, 2026. Prepared from COST_FALLBACK_INPUT.md with calculator verification and an independent check of the supplied market-price source.
 
@@ -118,20 +139,3 @@ Any remaining errors are my own.
 
 
 [SEEDED TEST ONLY] Quoted source line altered for the test: "Diluted$20.76 $18.21 $16.56".
-
-
-
-## Verification marks
-
-- Core Claim 1: Correct
-- Core Claim 3: Correct
-- Core Claim 4: Correct
-- Core Claim 5: Wrong
-- Core Claim 2: Correct
-- Core Claim 6: Correct
-- Core Claim 7: Correct
-- Core Claim 8: Correct
-- Core Claim 9: Correct
-- Core Claim 10: Correct
-- Core Claim 11: Correct
-- Core Claim 5: corrected 21.76 to 20.76 using filing evidence line 639.

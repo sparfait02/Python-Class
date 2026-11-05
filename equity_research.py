@@ -575,8 +575,9 @@ PERSONA_FILES = {
 
 def role_instruction(role: str) -> str:
     role_path = Path(__file__).with_name("roles") / ROLE_FILES.get(role, "")
-    persona_path = Path(__file__).with_name("personas") / PERSONA_FILES.get(role, "")
-    persona = persona_path.read_text(encoding="utf-8").strip() if persona_path.exists() else ""
+    persona_file = PERSONA_FILES.get(role)
+    persona_path = Path(__file__).with_name("personas") / persona_file if persona_file else None
+    persona = persona_path.read_text(encoding="utf-8").strip() if persona_path and persona_path.is_file() else ""
     persona_text = f"\n\nPERSONA (student-authored file; use it when present):\n{persona}" if persona else ""
     if role_path.exists():
         return role_path.read_text(encoding="utf-8") + persona_text
@@ -635,8 +636,8 @@ def parse_json_response(text: str, role: str) -> dict[str, Any]:
     return value
 
 
-def redact_provider_diagnostic(value: Any) -> str:
-    """Remove credentials from diagnostic text; never include request bodies."""
+def redact_secrets(value: Any) -> str:
+    """Redact credentials without changing source formatting or length limits."""
     text = str(value)
     secrets = [value for name, value in os.environ.items()
                if value and re.search(r"key|token|secret|password|credential", name, re.I)]
@@ -648,8 +649,31 @@ def redact_provider_diagnostic(value: Any) -> str:
         r"(?i)([\"']?(?:api[_-]?key|key|token|access_token|password|secret|x-goog-api-key)[\"']?\s*[:=]\s*)(?:\"[^\"]*\"|'[^']*'|[^\s&,;}]+)",
         r"\1[REDACTED]", text,
     )
-    # Keep the diagnostic on one log line and bound unstructured provider text.
-    return " ".join(text.split())[:2000]
+    return text
+
+
+def redact_provider_diagnostic(value: Any) -> str:
+    """Bound a single diagnostic line after redacting credentials."""
+    return " ".join(redact_secrets(value).split())[:2000]
+
+
+def safe_node_evidence(value: Any) -> Any:
+    """Serialize graph data only; exclude credentials and environment-file fields."""
+    if isinstance(value, dict):
+        if any(isinstance(item, str) and re.search(r"(?:^|[/\\])\.env(?:\.[^/\\]*)?$", item)
+               for key, item in value.items() if str(key).lower() in {"file", "path", "filename"}):
+            return {"excluded": "environment file contents are never saved"}
+        return {redact_secrets(key): (
+            "[REDACTED]" if re.search(
+                r"key|token|secret|password|credential|(?:^|[/\\])\.env|env_contents|environment", str(key), re.I
+            ) else safe_node_evidence(item)) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [safe_node_evidence(item) for item in value]
+    if isinstance(value, str):
+        return redact_secrets(value)
+    if value is None or isinstance(value, (bool, int, float)):
+        return value
+    return redact_secrets(value)
 
 
 def gemini_error_diagnostic(error: Exception, role: str, model: str) -> str:
@@ -907,6 +931,20 @@ def _filing_evidence(filing_lines: list[str], expected: float, label: str) -> di
     return {"line": None, "text": None}
 
 
+def place_verification_marks(report_text: str, checks: list[dict[str, Any]], corrections: list[str]) -> str:
+    """Keep the filings line first and replace, rather than append, the marks."""
+    text = re.sub(r"<!-- verification-marks:start -->.*?<!-- verification-marks:end -->\n?", "", report_text, flags=re.S)
+    text = re.sub(r"^## Verification marks\s*\n.*?(?=^#{1,6} |\Z)", "", text, flags=re.M | re.S)
+    first, separator, remainder = text.partition("\n")
+    table = ["<!-- verification-marks:start -->", "## Verification marks", "",
+             "Deterministic checks of the original input; model-based checking is separate.", "",
+             "| Core claim | Original input status | Source line |",
+             "| --- | --- | --- |"]
+    table.extend(f"| {c['claim']} | {c['status']} | {c.get('source_line') or 'not available'} |" for c in checks)
+    table.extend(["", *corrections, "<!-- verification-marks:end -->"])
+    return (first + "\n" + "\n".join(table) + "\n" + remainder).rstrip("\n") + "\n"
+
+
 def verify_saved_run(path_value: str | Path) -> Path:
     """Run deterministic checks on one saved run and save marks beside it."""
     run_path = Path(path_value).expanduser().resolve()
@@ -1056,19 +1094,51 @@ def verify_saved_run(path_value: str | Path) -> Path:
         new = _display_number(float(check["correction"]["to"]))
         corrected_report_text = corrected_report_text.replace(old, new)
         correction_lines.append(f"- Core Claim {check['claim']}: corrected {old} to {new} using filing evidence line {check['source_line']}.")
-    verified_report_path.write_text(corrected_report_text + "\n\n## Verification marks\n\n" + "\n".join(f"- Core Claim {c['claim']}: {c['status']}" for c in checks) + ("\n" + "\n".join(correction_lines) if correction_lines else "") + "\n", encoding="utf-8")
+    verified_report_path.write_text(place_verification_marks(corrected_report_text, checks, correction_lines), encoding="utf-8")
     print(output_path)
     print(verified_report_path)
     print(f"Summary: Correct={summary['correct']}; Wrong={summary['wrong']}; Unsupported=0; Errors={summary['errors']}")
     return output_path
 
 
-def build_agent_graph(role_call: Any, local_verifier: Any = verify_saved_run) -> Any:
+def build_agent_graph(role_call: Any, local_verifier: Any = verify_saved_run, *, offline_stub: bool = False) -> Any:
     """Build the fixed Lab 04 graph. The verifier has no bypass edge."""
     from langgraph.graph import END, START, StateGraph
 
+    mode = "OFFLINE STUB: no provider calls; not a live report" if offline_stub else "PROVIDER WORKFLOW: completion not implied"
+    session = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    active_node: dict[str, Any] = {}
+    original_role_call = role_call
+
+    def save_evidence(path: Path, payload: Any) -> None:
+        path.write_text(json.dumps(safe_node_evidence(payload), ensure_ascii=False, indent=2), encoding="utf-8")
+
+    def role_call(role: str, packet: dict[str, Any]) -> dict[str, Any]:
+        # Preserve the actual boundary, not just the graph's broader state.
+        save_evidence(active_node["path"] / "role_input.json", {
+            "mode": mode, "role": role, "instructions": role_instruction(role), "packet": packet,
+        })
+        result = original_role_call(role, packet)
+        save_evidence(active_node["path"] / "role_output.json", {"mode": mode, "role": role, "output": result})
+        return result
+
+    def tracked(name: str, function: Any) -> Any:
+        def execute(state: dict[str, Any]) -> dict[str, Any]:
+            print(f"Node: {name}", flush=True)
+            path = Path(state["run_folder"]) / "node_evidence" / session / f"{len(state.get('node_order', [])) + 1:02}_{safe_name(name)}"
+            path.mkdir(parents=True, exist_ok=False)
+            active_node["path"] = path
+            save_evidence(path / "input.json", {"mode": mode, "node": name, "state": state})
+            try:
+                output = function(state)
+            except Exception as error:
+                save_evidence(path / "output.json", {"mode": mode, "node": name, "status": "failed", "error": redact_provider_diagnostic(error)})
+                raise
+            save_evidence(path / "output.json", {"mode": mode, "node": name, "status": "completed", "output": output})
+            return output
+        return execute
+
     def begin(state: dict[str, Any], name: str) -> list[str]:
-        print(f"Node: {name}")
         return list(state.get("node_order", [])) + [name]
 
     def data_step_node(state: dict[str, Any], number: int) -> dict[str, Any]:
@@ -1143,7 +1213,7 @@ def build_agent_graph(role_call: Any, local_verifier: Any = verify_saved_run) ->
         run_folder = Path(state["run_folder"])
         accession_line = state["accession_line"]
         report_path = run_folder / "desk_report.md"
-        report_path.write_text(f"Filings read: {accession_line}\nRun time: {datetime.now().isoformat(timespec='seconds')}\n\n{report_markdown}\n", encoding="utf-8")
+        report_path.write_text(redact_secrets(f"Filings read: {accession_line}\nRun time: {datetime.now().isoformat(timespec='seconds')}\nEvidence mode: {mode}\n\n{report_markdown}\n"), encoding="utf-8")
         attempts = dict(state.get("attempts", {}))
         attempts["Strategy Manager"] = attempts.get("Strategy Manager", 0) + 1
         return {"node_order": begin(state, "Strategy Manager (compile)"), "compiled_report": report_markdown, "report_path": str(report_path), "attempts": attempts}
@@ -1163,12 +1233,14 @@ def build_agent_graph(role_call: Any, local_verifier: Any = verify_saved_run) ->
         )
         model_result = role_call("Verifier", model_packet)
         model_path = run_folder / "model_verification.json"
-        model_path.write_text(json.dumps(model_result, indent=2), encoding="utf-8")
+        model_path.write_text(json.dumps({"mode": mode, **safe_node_evidence(model_result)}, indent=2), encoding="utf-8")
         verified_path = run_folder / "verified_report.md"
         if verified_path.exists():
-            with verified_path.open("a", encoding="utf-8") as handle:
-                handle.write("\n## Model-based period and definition checks\n\n")
-                handle.write(json.dumps(model_result, indent=2, ensure_ascii=False) + "\n")
+            verified_text = verified_path.read_text(encoding="utf-8")
+            model_section = "\n### Model-based period and definition checks\n\n```json\n" + json.dumps(
+                {"mode": mode, **safe_node_evidence(model_result)}, indent=2, ensure_ascii=False
+            ) + "\n```\n"
+            verified_path.write_text(verified_text.replace("<!-- verification-marks:end -->", model_section + "<!-- verification-marks:end -->", 1), encoding="utf-8")
         return {"node_order": begin(state, "Verifier"), "verification_output": str(local_output), "model_verification": str(model_path)}
 
     def review_route(state: dict[str, Any]) -> str:
@@ -1187,16 +1259,16 @@ def build_agent_graph(role_call: Any, local_verifier: Any = verify_saved_run) ->
 
     graph = StateGraph(AgentState)
     for number in range(1, 8):
-        graph.add_node(f"step_{number}", lambda state, number=number: data_step_node(state, number))
-    graph.add_node("research", research_node)
-    graph.add_node("financial", financial_node)
-    graph.add_node("advisor", advisor_node)
-    graph.add_node("manager_review", manager_review_node)
-    graph.add_node("repair_research", lambda state: repair_node(state, "Research Analyst"))
-    graph.add_node("repair_financial", lambda state: repair_node(state, "Financial Analyst"))
-    graph.add_node("repair_advisor", lambda state: repair_node(state, "Investment Advisor"))
-    graph.add_node("manager_compile", compile_node)
-    graph.add_node("verifier", verifier_node)
+        graph.add_node(f"step_{number}", tracked(f"Step {number}", lambda state, number=number: data_step_node(state, number)))
+    graph.add_node("research", tracked("Research Analyst", research_node))
+    graph.add_node("financial", tracked("Financial Analyst", financial_node))
+    graph.add_node("advisor", tracked("Investment Advisor", advisor_node))
+    graph.add_node("manager_review", tracked("Strategy Manager (review)", manager_review_node))
+    graph.add_node("repair_research", tracked("Research Analyst (repair)", lambda state: repair_node(state, "Research Analyst")))
+    graph.add_node("repair_financial", tracked("Financial Analyst (repair)", lambda state: repair_node(state, "Financial Analyst")))
+    graph.add_node("repair_advisor", tracked("Investment Advisor (repair)", lambda state: repair_node(state, "Investment Advisor")))
+    graph.add_node("manager_compile", tracked("Strategy Manager (compile)", compile_node))
+    graph.add_node("verifier", tracked("Verifier", verifier_node))
     graph.add_edge(START, "step_1")
     for number in range(1, 7):
         graph.add_edge(f"step_{number}", f"step_{number + 1}")

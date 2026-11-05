@@ -3,6 +3,7 @@
 from pathlib import Path
 import json
 import sys
+import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from equity_research import REPORT_PARTS, build_agent_graph, role_packet
@@ -47,7 +48,7 @@ def offline_verifier(path: str) -> str:
 
 
 def main() -> None:
-    graph = build_agent_graph(stub_role_call, local_verifier=offline_verifier)
+    graph = build_agent_graph(stub_role_call, local_verifier=offline_verifier, offline_stub=True)
     result = graph.invoke({
         "run_folder": str(RUN_FOLDER),
         "accession_line": "stub filings",
@@ -70,5 +71,15 @@ def main() -> None:
     print(json.dumps({"node_order": order, "attempts": result["attempts"], "mandatory_verifier": True, "packet_boundaries": True}, indent=2))
 
 
+def isolated_main() -> None:
+    global RUN_FOLDER, repair_sent
+    repair_sent = False
+    calls.clear()
+    with tempfile.TemporaryDirectory(prefix="checkpoint2_offline_") as folder:
+        RUN_FOLDER = Path(folder)
+        (RUN_FOLDER / "facts.json").write_text("{}", encoding="utf-8")
+        main()
+
+
 if __name__ == "__main__":
-    main()
+    isolated_main()
