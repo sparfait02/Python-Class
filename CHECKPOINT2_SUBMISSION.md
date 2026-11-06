@@ -15,8 +15,17 @@ The [Checkpoint 2 checkout](https://cinderzhang.github.io/FIN67110-Fall2026/week
 | Marks directly below the original filings line, without duplicate sections | [Corrected seeded report](checkpoint2_tests/costco_seeded_eps/verified_report.md), [fix tests](checkpoint2_tests/test_checkpoint2_fixes_offline.py) | Passed offline; model-mark placement tested with a stub only |
 | Streamlit browser launch | [Recorded browser confirmation](checkpoint2_tests/costco_live_failure_summary_20261105.md) | User reported successful launch; not evidence of a verified report through UI |
 | Full live provider-backed run and mandatory live Verifier | [Live-failure summary](checkpoint2_tests/costco_live_failure_summary_20261105.md) | Unsuccessful: Research Analyst HTTP 503 UNAVAILABLE; no analyst completed and Verifier was not reached |
-| Ryan checks seeded-EPS marks against the 10-K | No completed Checkpoint 2 partner-check record | Pending; earlier RTX checks are separate |
+| Ryan checks seeded-EPS marks against the 10-K | [Ryan Lease's partner-check record](#ryan-leases-checkpoint-2-partner-check) | Complete for seeded annual EPS and related P/E references only; separate Lab 05 checks remain pending |
 | Partner-pick UI report and two hand-checked claims | No successful Lab 05 verified run or corresponding partner marks | Not demonstrated |
+
+## Ryan Lease's Checkpoint 2 partner check
+
+- Date checked: November 5, 2026.
+- Reviewed commit: `7474cbe1b04ba6ff00f7c0d69d636f1f1cf9e71b`. This is the commit Ryan reviewed; later commits do not replace this reference.
+- Conclusion: **Caught and corrected.** Ryan personally inspected the evidence with AI guidance, as reported by the student.
+- Core Claim 5 was marked **Wrong**. The seeded report showed FY2026 annual GAAP diluted EPS of **$21.76 per share**. Costco's [10-K, accession 0000909832-26-000093](https://www.sec.gov/Archives/edgar/data/909832/000090983226000093/cost-20260830.htm) shows **$20.76** for the year ended **August 30, 2026**, and **$18.21** for the year ended **August 31, 2025**. The verifier cited saved filing text **line 639**.
+- Ryan confirmed that the corrected report restored **$20.76** and that both P/E references used **$992.13 ÷ $20.76**, or **47.79×**. The $992.13 input is the historical October 27, 2026 practice price, not today's price.
+- Scope: **seeded annual EPS and related P/E references only**. The test was offline. This check does not establish a successful live run or complete any separate Lab 05 partner checks.
 
 ## Reproduce the seeded-EPS check without network access
 
@@ -49,7 +58,7 @@ Only the first four files are required inputs; the last three are reproducible o
 - Historical practice price: USD 992.13, October 27, 2026, not a current market price.
 - Persona wording remains the student's existing text, including the RTX example. Company-neutral wording remains for the student to review; no authorship or human audit is invented here.
 - The generic verifier's broader handling of arbitrary report layouts, unsupported claims, and all sourced numbers remains outside what these saved seeded tests prove.
-- Ryan's pending Checkpoint 2 check, successful verified live demonstrations, publication of the submission commit, and Brightspace submission remain outstanding.
+- Ryan's Checkpoint 2 seeded-EPS and related P/E check is complete within the scope recorded above. Separate Lab 05 partner checks, successful verified live demonstrations, publication of the submission commit, and Brightspace submission remain outstanding.
 
 This is a learning exercise, not financial advice.
 AI assistance: ChatGPT and Codex assisted implementation, testing, and this evidence index. Automated checks do not establish human or partner source verification; human judgments remain with the student.

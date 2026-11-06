@@ -58,7 +58,7 @@ FY2026 figures cite accession 0000909832-26-000093; prior comparative values are
 | Total revenue | 95,723 | 86,156 | E, total revenue row, line 43 |
 | GAAP diluted EPS | 6.75 | 5.87 | E, diluted row, line 56 |
 
-Calculator-checked total-revenue growth is `(95,723 - 86,156) / 86,156 Ã— 100 = 11.104276%`, or **11.1043%**. This uses total revenue, including membership fees. It is not the release's separately reported **11.2% net-sales growth**. [E, lines 10 and 40â€“56.]
+Calculator-checked total-revenue growth is `(95,723 - 86,156) / 86,156 × 100 = 11.104276%`, or **11.1043%**. This uses total revenue, including membership fees. It is not the release's separately reported **11.2% net-sales growth**. [E, lines 10 and 40â€“56.]
 
 **Interpretation.** Positive annual and quarterly revenue growth supports a constructive operating view. Whether growth persists depends on future customer activity, execution, and costs. The supplied excerpts do not establish future growth rates or a stock-price trajectory.
 
@@ -68,12 +68,12 @@ Calculator-checked total-revenue growth is `(95,723 - 86,156) / 86,156 Ã— 100
 
 | Annual core calculation | Formula, USD millions unless noted | Result |
 |---|---|---:|
-| Revenue growth | `(303,154 - 275,235) / 275,235 Ã— 100` | 10.143695% |
-| Operating margin | `11,685 / 303,154 Ã— 100` | 3.854477% |
-| Return on average equity | `9,226 / ((35,803 + 29,164) / 2) Ã— 100` | 28.402112% |
-| Debt/equity | `(3,914 + 2,248) / 35,803` | 0.172108Ã— |
+| Revenue growth | `(303,154 - 275,235) / 275,235 × 100` | 10.143695% |
+| Operating margin | `11,685 / 303,154 × 100` | 3.854477% |
+| Return on average equity | `9,226 / ((35,803 + 29,164) / 2) × 100` | 28.402112% |
+| Debt/equity | `(3,914 + 2,248) / 35,803` | 0.172108× |
 | Course-defined free cash flow | `15,817 - 6,435` | $9,382 million |
-| Price / latest annual GAAP diluted EPS | `$992.13 / $20.76` | 47.790462Ã—, or 47.79Ã— |
+| Price / latest annual GAAP diluted EPS | `$992.13 / $20.76` | 47.790462×, or 47.79× |
 
 The debt numerator includes the current portion exactly once. ROE uses average beginning and ending shareholders' equity. Free cash flow uses CFO minus property-and-equipment additions; it is explicitly a course calculation. [K, statements cited in Section 1.]
 
@@ -83,9 +83,9 @@ The price input is the regular-session **Close of $992.13 on October 27, 2026**,
 
 | Peer | Total revenue current / prior | Operating income current / prior | Current margin calculation | Source accession |
 |---|---:|---:|---|---|
-| WMT | 713,163 / 680,985 | 29,825 / 29,348 | `29,825 / 713,163 Ã— 100 = 4.182073%` | 0000104169-26-000055 |
-| TGT | 104,780 / 106,566 | 5,117 / 5,566 | `5,117 / 104,780 Ã— 100 = 4.883566%` | 0000027419-26-000016 |
-| BJ | 21,457.274 / 20,501.804 | 816.604 / 772.206 | `816.604 / 21,457.274 Ã— 100 = 3.805721%` | 0001531152-26-000007 |
+| WMT | 713,163 / 680,985 | 29,825 / 29,348 | `29,825 / 713,163 × 100 = 4.182073%` | 0000104169-26-000055 |
+| TGT | 104,780 / 106,566 | 5,117 / 5,566 | `5,117 / 104,780 × 100 = 4.883566%` | 0000027419-26-000016 |
+| BJ | 21,457.274 / 20,501.804 | 816.604 / 772.206 | `816.604 / 21,457.274 × 100 = 3.805721%` | 0001531152-26-000007 |
 
 Revenue tags are `Revenues` for WMT and `RevenueFromContractWithCustomerExcludingAssessedTax` for TGT/BJ; operating income uses `OperatingIncomeLoss`. Raw fact units are USD. WMT uses consolidated total revenues, including membership and other income, rather than net sales alone. BJ's source statement uses thousands; values above are converted to millions. [W, T, B; supplied peer facts.]
 
@@ -103,7 +103,7 @@ Revenue tags are `Revenues` for WMT and `RevenueFromContractWithCustomerExcludin
 
 **Investment Advisor â€” provisional HOLD.** Annual revenue growth, positive course-defined FCF, and the membership-based operating model support continued research rather than a conclusion that the operating business is failing. However, this packet does not establish an attractive entry valuation. HOLD here means maintaining an existing position while completing valuation work; it is not a direction for a nonholder to buy and is not a finding of fair value.
 
-**Deciding number: 47.79Ã— price divided by latest annual GAAP diluted EPS.** The calculation is `$992.13 / $20.76`. The multiple measures the price paid per dollar of historical earnings, but no supported comparison benchmark is supplied. It therefore frames the unresolved valuation question; it does not independently prove overvaluation. [P; K, EPS; Section 3 arithmetic.]
+**Deciding number: 47.79× price divided by latest annual GAAP diluted EPS.** The calculation is `$992.13 / $20.76`. The multiple measures the price paid per dollar of historical earnings, but no supported comparison benchmark is supplied. It therefore frames the unresolved valuation question; it does not independently prove overvaluation. [P; K, EPS; Section 3 arithmetic.]
 
 **Uncertainty.** A Buy or Sell conclusion would require more valuation evidence, stated assumptions, and an investor-specific required return. This provisional HOLD is a judgment under incomplete evidence, not a filing-reported fact or personalized portfolio recommendation.
 
